@@ -1,14 +1,14 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 
 import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -148,19 +148,41 @@ public class FrmCambiosMonedas extends JFrame {
                 "Fecha", "Cambio en USD",
                 series);
 
-        ChartPanel pnlGraficador=new ChartPanel(graficador);
-        pnlGraficador.setPreferredSize(new Dimension(600,400));
+        ChartPanel pnlGraficador = new ChartPanel(graficador);
+        pnlGraficador.setPreferredSize(new Dimension(600, 400));
 
         pnlGrafica.removeAll();
         pnlGrafica.setLayout(new BorderLayout());
         pnlGrafica.add(pnlGraficador, BorderLayout.CENTER);
         pnlGrafica.revalidate();
-
-
+        // Cambiar a la pestaña de grafica
+        tpCambiosMoneda.setSelectedIndex(0);
     }
 
     private void btnCalcularEstadisticasClick() {
+        // obtener datos para el filtro
+        String moneda = (String) cmbMoneda.getSelectedItem();
+        LocalDate desde = dccDesde.getSelectedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate hasta = dccHasta.getSelectedDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
+        var estadisticas = CambioMonedaServicio.getEstadisticas(datos, moneda, desde, hasta);
+
+        pnlEstadisticas.removeAll();
+        pnlEstadisticas.setLayout(new GridBagLayout());
+        int fila = 0;
+        for (var estadistica : estadisticas.entrySet()) {
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = fila;
+            pnlEstadisticas.add(new JLabel(estadistica.getKey()), gbc);
+            gbc.gridx = 1;
+            pnlEstadisticas.add(new JLabel(String.format("%.2f", estadistica.getValue())), gbc);
+            fila++;
+        }
+        pnlEstadisticas.revalidate();
+
+        // Cambiar a la pestaña de estadísticas
+        tpCambiosMoneda.setSelectedIndex(1);
     }
 
 }

@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -105,6 +106,23 @@ public class CambioMonedaServicio {
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(0.0);
+    }
+
+    public static Map<String, Double> getEstadisticas(List<CambioMoneda> cambios, String moneda,
+            LocalDate fechaDesde, LocalDate fechaHasta) {
+
+        var cambiosFiltrados = filtrarCambios(cambios, moneda, fechaDesde, fechaHasta);
+        var valoresFiltrados = getCambios(cambiosFiltrados);
+
+        Map<String, Double> estadisticas = new LinkedHashMap<>();
+        estadisticas.put("Promedio", getPromedio(valoresFiltrados));
+        estadisticas.put("Desviación Estandar", getDesviacionEstandar(valoresFiltrados));
+        estadisticas.put("Máximo", getMaximo(valoresFiltrados));
+        estadisticas.put("Mínimo", getMinimo(valoresFiltrados));
+        estadisticas.put("Moda", getModa(valoresFiltrados));
+        estadisticas.put("Mediana", getMediana(valoresFiltrados));
+
+        return estadisticas;
 
     }
 
